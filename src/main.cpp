@@ -1,9 +1,10 @@
 #include <Arduino.h>
-#include <SPI.h>
+#include <Wire.h>
 #include "icm.h"
 
-// SPI設定
-#define ICM_CS_PIN 5 // Chip Select pin for ICM20948
+// I2C設定
+#define SDA_PIN 4 // SDA pin for I2C
+#define SCL_PIN 5 // SCL pin for I2C
 
 // Create an instance of the ICM20948 class
 ICM20948 mySensor;
@@ -12,12 +13,8 @@ void setup()
 {
     Serial.begin(115200);
 
-    // Initialize SPI
-    SPI.begin();
-    SPI.setClockDivider(SPI_CLOCK_DIV16); // Set SPI clock to 1MHz
-
-    // Initialize ICM20948 with SPI
-    if (mySensor.init(ICM_CS_PIN, &SPI))
+    // Initialize ICM20948 with I2C
+    if (mySensor.init(SDA_PIN, SCL_PIN))
     {
         Serial.println("ICM-20948 initialization successful.");
     }

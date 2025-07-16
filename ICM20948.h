@@ -94,7 +94,7 @@ public:
     ICM20948();
 
     // Initialization
-    bool begin(uint8_t address = 0x68);
+    bool init(uint8_t address = 0x68);
     bool initMagnetometer();
 
     // Data reading

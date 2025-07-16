@@ -12,7 +12,7 @@ ICM20948::ICM20948()
     magSensitivity = 0.15f; // AK09916: 0.15 μT/LSB
 }
 
-bool ICM20948::begin(uint8_t address)
+bool ICM20948::init(uint8_t address)
 {
     _address = address;
 
