@@ -14,19 +14,25 @@ void setup()
     Serial.begin(115200);
 
     // Initialize ICM20948 with I2C
-    if (mySensor.init(SDA_PIN, SCL_PIN))
+    while (!mySensor.init(SDA_PIN, SCL_PIN))
     {
-        Serial.println("ICM-20948 initialization successful.");
+        Serial.println("ICM-20948 initialization failed. Retrying...");
+        delay(1000); // Wait before retrying
     }
-    else
-    {
-        Serial.println("ICM-20948 initialization failed. Stopping.");
-        while (1)
-        {
-            Serial.println("ICM-20948 initialization failed. Stopping.");
-            delay(500); // Wait indefinitely
-        }
-    }
+    Serial.println("ICM-20948 initialization successful.");
+    // if (mySensor.init(SDA_PIN, SCL_PIN))
+    // {
+    //     Serial.println("ICM-20948 initialization successful.");
+    // }
+    // else
+    // {
+    //     Serial.println("ICM-20948 initialization failed. Stopping.");
+    //     while (1)
+    //     {
+    //         Serial.println("ICM-20948 initialization failed. Stopping.");
+    //         delay(500); // Wait indefinitely
+    //     }
+    // }
 
     Serial.println("ICM-20948 ready for data reading.");
 }
@@ -45,7 +51,7 @@ void loop()
     Serial.println("--- Sensor Data ---");
 
     // 加速度 (g)
-    Serial.print("Accel (g): ");
+    Serial.print("Accel (m/s^2): ");
     Serial.print("X=");
     Serial.print(accel.x, 3);
     Serial.print(" | Y=");
@@ -54,7 +60,7 @@ void loop()
     Serial.println(accel.z, 3);
 
     // ジャイロ (dps)
-    Serial.print("Gyro (dps): ");
+    Serial.print("Gyro (rad/s): ");
     Serial.print("X=");
     Serial.print(gyro.x, 3);
     Serial.print(" | Y=");
@@ -75,14 +81,32 @@ void loop()
     Serial.print("Temperature (°C): ");
     Serial.println(temperature, 2);
 
-    // 簡単なヘディング計算
-    float heading = atan2(mag.y, mag.x) * 180.0 / PI;
-    if (heading < 0)
+    // 3軸角度計算（ピッチ、ロール、ヨー）
+    // ピッチ (X軸周りの回転): -90度から+90度
+    float pitch = atan2(-accel.x, sqrt(accel.y * accel.y + accel.z * accel.z)) * 180.0 / PI;
+
+    // ロール (Y軸周りの回転): -180度から+180度
+    float roll = atan2(accel.y, accel.z) * 180.0 / PI;
+
+    // ヨー (Z軸周りの回転、磁力計から): 0度から360度
+    float yaw = atan2(mag.y, mag.x) * 180.0 / PI;
+    if (yaw < 0)
     {
-        heading += 360.0;
+        yaw += 360.0;
     }
-    Serial.print("Heading (degrees): ");
-    Serial.println(heading, 2);
+
+    Serial.println("--- 3-Axis Orientation ---");
+    Serial.print("Pitch (X-axis rotation): ");
+    Serial.print(pitch, 2);
+    Serial.println(" degrees");
+
+    Serial.print("Roll (Y-axis rotation): ");
+    Serial.print(roll, 2);
+    Serial.println(" degrees");
+
+    Serial.print("Yaw (Z-axis rotation): ");
+    Serial.print(yaw, 2);
+    Serial.println(" degrees");
 
     Serial.println();
 
